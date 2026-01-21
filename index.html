@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Chúc Mừng Năm Mới</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  margin: 0;
+  height: 100vh;
+  background: #b30000;
+  overflow: hidden;
+  font-family: "Times New Roman", serif;
+}
+
+/* KHUNG NỀN GIỐNG BANNER */
+.banner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* KHUNG ĐỎ CHÍNH */
+.panel {
+  background: linear-gradient(180deg, #c40000, #9b0000);
+  border: 10px solid gold;
+  padding: 40px 30px;
+  box-shadow: 0 0 40px rgba(255,215,0,0.6);
+}
+
+/* CHỮ THƯ PHÁP */
+.text {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-size: 64px;
+  font-weight: bold;
+  letter-spacing: 10px;
+  background: linear-gradient(
+    180deg,
+    #fff6b7,
+    #ffd700,
+    #ffae00
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow:
+    0 0 10px rgba(255,215,0,0.9),
+    0 0 25px rgba(255,140,0,0.9);
+  animation: glow 2.5s infinite alternate;
+}
+
+/* HIỆU ỨNG SÁNG */
+@keyframes glow {
+  from {
+    text-shadow:
+      0 0 8px gold,
+      0 0 20px orange;
+  }
+  to {
+    text-shadow:
+      0 0 20px gold,
+      0 0 50px orange;
+  }
+}
+
+/* PHÁO HOA */
+canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+}
+</style>
+</head>
+
+<body>
+
+<div class="banner">
+  <div class="panel">
+    <div class="text">
+      AN KHANG<br>
+      THỊNH VƯỢNG
+    </div>
+  </div>
+</div>
+
+<canvas id="fireworks"></canvas>
+
+<script>
+const canvas = document.getElementById("fireworks");
+const ctx = canvas.getContext("2d");
+canvas.width = innerWidth;
+canvas.height = innerHeight;
+
+function rand(a,b){return Math.random()*(b-a)+a}
+const fireworks=[];
+
+class Firework{
+  constructor(){
+    this.x=rand(0,canvas.width);
+    this.y=canvas.height;
+    this.t=rand(150,canvas.height/2);
+    this.c=`hsl(${rand(0,360)},100%,60%)`;
+    this.p=[];
+    this.e=false;
+  }
+  update(){
+    if(!this.e){
+      this.y-=8;
+      if(this.y<=this.t){
+        this.e=true;
+        for(let i=0;i<150;i++){
+          this.p.push({
+            x:this.x,y:this.y,
+            vx:rand(-7,7),
+            vy:rand(-7,7),
+            l:90
+          });
+        }
+      }
+    }
+  }
+  draw(){
+    if(!this.e){
+      ctx.fillStyle=this.c;
+      ctx.beginPath();
+      ctx.arc(this.x,this.y,4,0,Math.PI*2);
+      ctx.fill();
+    }
+  }
+}
+
+function animate(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  if(Math.random()<0.15)fireworks.push(new Firework());
+  fireworks.forEach((f,i)=>{
+    f.update();
+    f.draw();
+    if(f.e){
+      f.p.forEach((p,j)=>{
+        p.x+=p.vx;
+        p.y+=p.vy;
+        p.vy+=0.05;
+        p.l--;
+        ctx.fillStyle=f.c;
+        ctx.beginPath();
+        ctx.arc(p.x,p.y,3,0,Math.PI*2);
+        ctx.fill();
+        if(p.l<=0)f.p.splice(j,1);
+      });
+      if(f.p.length===0)fireworks.splice(i,1);
+    }
+  });
+  requestAnimationFrame(animate);
+}
+animate();
+
+window.onresize=()=>{
+  canvas.width=innerWidth;
+  canvas.height=innerHeight;
+}
+</script>
+
+</body>
+</html>
